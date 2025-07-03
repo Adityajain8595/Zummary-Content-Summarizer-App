@@ -11,4 +11,4 @@ youtube_transcript_api
 pytube
 unstructured
 gtts
-PIL
+Pillow
