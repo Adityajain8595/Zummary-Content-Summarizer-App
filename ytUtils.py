@@ -1,4 +1,5 @@
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import WebshareProxyConfig
 from urllib.parse import urlparse, parse_qs
 from langchain.schema import Document
 
@@ -16,7 +17,13 @@ def get_transcript_as_document(url):
         raise ValueError("Invalid YouTube URL")
 
     try:
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
+        ytt_api = YouTubeTranscriptApi(
+            proxy_config=WebshareProxyConfig(
+                proxy_username="txyeuxio",
+                proxy_password="m3qpu3lt6cj6",
+            )
+        )
+        transcript = ytt_api.get_transcript(video_id)
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
     except Exception as e:
