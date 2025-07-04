@@ -2,6 +2,9 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import WebshareProxyConfig
 from urllib.parse import urlparse, parse_qs
 from langchain.schema import Document
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 def extract_youtube_video_id(url):
     # Handles both long and short formats
@@ -19,8 +22,8 @@ def get_transcript_as_document(url):
     try:
         ytt_api = YouTubeTranscriptApi(
             proxy_config=WebshareProxyConfig(
-                proxy_username="txyeuxio",
-                proxy_password="m3qpu3lt6cj6",
+                proxy_username=os.getenv("proxy_username"),
+                proxy_password=os.getenv("proxy_password"),
             )
         )
         transcript = ytt_api.get_transcript(video_id)
