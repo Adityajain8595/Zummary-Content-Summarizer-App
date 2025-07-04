@@ -19,5 +19,5 @@ def get_transcript_as_document(url):
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
-    except:
-        raise RuntimeError(f"Transcript fetch failed!")
+    except Exception as e:
+        raise RuntimeError(f"Transcript fetch failed! Exception: {e}")
