@@ -24,7 +24,7 @@ with col3:
 st.markdown("""
 <div style="text-align:center;">
     <h1 style="margin-top:10px;">Summarize Text On the Go!</h1>
-    <p style="color:gray;">Summarize YouTube, Websites, and PDFs with audio available!</p>
+    <p style="color:gray;">Summarize YouTube, Websites, and PDFs with audio and downloads available!</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -49,10 +49,10 @@ with col3:
 
 # Based on selected mode
 if st.session_state.mode == "youtube":
-    url = st.text_input("Enter YouTube Video URL:")
+    url = st.text_input("Enter YouTube Video URL:",value="https://")
     if url:
         if not validators.url(url) or "youtube.com" not in url:
-            st.error("Please enter a valid YouTube URL.")
+            st.error("Please enter a valid & complete YouTube URL.")
         else:
             try:
                 with st.spinner("Loading and summarizing video..."):
@@ -75,10 +75,10 @@ if st.session_state.mode == "youtube":
                 st.exception(f"Exception: {e}")
 
 elif st.session_state.mode == "web":
-    url = st.text_input("Enter Website URL:")
+    url = st.text_input("Enter Website URL:", value="https://")
     if url:
         if not validators.url(url) or "youtube.com" in url:
-            st.error("Please enter a valid non-YouTube URL.")
+            st.error("Please enter a valid and complete website URL.")
         else:
             try:
                 with st.spinner("Loading and summarizing webpage..."):
