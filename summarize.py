@@ -11,8 +11,8 @@ from PIL import Image
 
 # Load environment variables
 load_dotenv()
-os.environ["LANGCHAIN_API_KEY"] = st.secrets["LANGCHAIN_API_KEY"]
-groq_api_key = st.secrets["GROQ_API_KEY"]
+os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
+groq_api_key = os.getenv("GROQ_API_KEY")
 
 # App title and description
 ## App logo
