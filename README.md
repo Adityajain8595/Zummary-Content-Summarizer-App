@@ -90,7 +90,7 @@ Add these secrets to .streamlit/secrets.toml as well (used in app):
 
 ## 📸 Screenshots
 
-Adding screenshots here showcasing YouTube, URL, and PDF summarization...
+https://github.com/user-attachments/assets/bd4deeba-f959-4587-a515-2f9077b47f8a
 
 ---
 
