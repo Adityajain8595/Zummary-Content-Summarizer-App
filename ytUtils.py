@@ -27,6 +27,7 @@ def get_transcript_as_document(url):
             )
         )
         transcript = ytt_api.get_transcript(video_id)
+
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
     except Exception as e:
