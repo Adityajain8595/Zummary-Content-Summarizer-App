@@ -11,5 +11,5 @@ unstructured
 transformers
 gtts
 Pillow
-langchain
+langchain==0.2.17
 langchain-core
