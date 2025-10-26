@@ -1,5 +1,5 @@
 python-dotenv
-langchain_community
+langchain_community==0.0.34
 streamlit
 langchain_groq
 langchain_text_splitters
@@ -11,5 +11,5 @@ unstructured
 transformers
 gtts
 Pillow
-langchain
+langchain==0.1.14
 langchain-core
