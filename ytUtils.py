@@ -20,28 +20,11 @@ def get_transcript_as_document(url):
         raise ValueError("Invalid YouTube URL")
 
     try:
-        proxy_url = os.getenv("PROXY_URL") or os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")
+        proxy_url = os.getenv("HTTPS_PROXY")
         if proxy_url:
             os.environ["HTTPS_PROXY"] = proxy_url
-            os.environ["HTTP_PROXY"] = proxy_url
-
-        # This is the code from your FIRST prompt
-        proxy_username = os.getenv("proxy_username")
-        proxy_password = os.getenv("proxy_password")
-
-        if proxy_username and proxy_password:
-            # THIS BLOCK IS FOR ROTATING PROXIES (NOT YOURS)
-            ytt_api = YouTubeTranscriptApi(
-                proxy_config=WebshareProxyConfig(
-                    proxy_username=proxy_username,
-                    proxy_password=proxy_password,
-                )
-            )
-            transcript = ytt_api.fetch(video_id)
-        else:
-            # THIS BLOCK IS FOR STATIC PROXIES (YOURS)
-            # It automatically uses the HTTP_PROXY/HTTPS_PROXY env vars
-            transcript = YouTubeTranscriptApi.fetch(video_id) 
+            
+        transcript = YouTubeTranscriptApi.fetch(video_id) 
 
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
