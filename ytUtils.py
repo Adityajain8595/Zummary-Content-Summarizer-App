@@ -25,26 +25,27 @@ def get_transcript_as_document(url):
             os.environ["HTTPS_PROXY"] = proxy_url
             os.environ["HTTP_PROXY"] = proxy_url
 
+        # This is the code from your FIRST prompt
         proxy_username = os.getenv("proxy_username")
         proxy_password = os.getenv("proxy_password")
 
         if proxy_username and proxy_password:
-            # CHANGED: .get_transcript to .fetch
-            transcript = YouTubeTranscriptApi.fetch(
-                video_id,
-                proxies=WebshareProxyConfig(
+            # THIS BLOCK IS FOR ROTATING PROXIES (NOT YOURS)
+            ytt_api = YouTubeTranscriptApi(
+                proxy_config=WebshareProxyConfig(
                     proxy_username=proxy_username,
                     proxy_password=proxy_password,
-                ).get_dict()
+                )
             )
+            transcript = ytt_api.fetch(video_id)
         else:
-            # CHANGED: .get_transcript to .fetch
-            transcript = YouTubeTranscriptApi.fetch(video_id)
+            # THIS BLOCK IS FOR STATIC PROXIES (YOURS)
+            # It automatically uses the HTTP_PROXY/HTTPS_PROXY env vars
+            transcript = YouTubeTranscriptApi.fetch(video_id) 
 
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
     except Exception as e:
-        # Detect common proxy auth errors and provide actionable guidance
         msg = str(e)
         if "407" in msg or "ProxyError" in msg or "Tunnel connection failed" in msg:
             raise RuntimeError(
