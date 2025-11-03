@@ -31,17 +31,16 @@ def get_transcript_as_document(url):
         proxy_password = os.getenv("proxy_password")
 
         if proxy_username and proxy_password:
-            ytt_api = YouTubeTranscriptApi(
-                proxy_config=WebshareProxyConfig(
+            transcript = YouTubeTranscriptApi.get_transcript(
+                video_id,
+                proxies=WebshareProxyConfig(
                     proxy_username=proxy_username,
                     proxy_password=proxy_password,
-                )
+                ).get_dict()
             )
-            transcript = ytt_api.fetch(video_id)
         else:
-            # Fallback: call library without explicit proxy config. Requests will
-            # pick up HTTP(S)_PROXY from environment if set above.
-            transcript = YouTubeTranscriptApi.fetch(video_id)
+            # Use get_transcript instead of fetch - it's the correct static method
+            transcript = YouTubeTranscriptApi.get_transcript(video_id)
 
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
