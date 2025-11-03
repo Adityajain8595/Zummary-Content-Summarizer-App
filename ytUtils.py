@@ -20,17 +20,36 @@ def get_transcript_as_document(url):
         raise ValueError("Invalid YouTube URL")
 
     try:
-        ytt_api = YouTubeTranscriptApi(
-            proxy_config=WebshareProxyConfig(
-                proxy_username=os.getenv("proxy_username"),
-                proxy_password=os.getenv("proxy_password"),
-            )
-        )
+        proxy_url = os.getenv("PROXY_URL") or os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY")
+        if proxy_url:
+            os.environ["HTTPS_PROXY"] = proxy_url
+            os.environ["HTTP_PROXY"] = proxy_url
 
-        # ✅ Correct way: call the static method directly
-        transcript = ytt_api.fetch(video_id)
+        # youtube_transcript_api supports WebshareProxyConfig for Webshare proxy pools
+        # If only username/password are provided, keep using WebshareProxyConfig.
+        proxy_username = os.getenv("proxy_username")
+        proxy_password = os.getenv("proxy_password")
+
+        if proxy_username and proxy_password:
+            ytt_api = YouTubeTranscriptApi(
+                proxy_config=WebshareProxyConfig(
+                    proxy_username=proxy_username,
+                    proxy_password=proxy_password,
+                )
+            )
+            transcript = ytt_api.fetch(video_id)
+        else:
+            # Fallback: call library without explicit proxy config. Requests will
+            # pick up HTTP(S)_PROXY from environment if set above.
+            transcript = YouTubeTranscriptApi.fetch(video_id)
 
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
     except Exception as e:
+        # Detect common proxy auth errors and provide actionable guidance
+        msg = str(e)
+        if "407" in msg or "ProxyError" in msg or "Tunnel connection failed" in msg:
+            raise RuntimeError(
+                "Transcript fetch failed due to a proxy authentication error (HTTP 407). "
+            )
         raise RuntimeError(f"Transcript fetch failed! Exception: {e}")
