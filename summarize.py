@@ -29,7 +29,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Initializing LLM 
-llm = ChatGroq(model="gemma2-9b-it", groq_api_key=groq_api_key)
+llm = ChatGroq(model="llama-3.1-8b-instant", groq_api_key=groq_api_key)
 
 if "mode" not in st.session_state:
     st.session_state.mode = None
