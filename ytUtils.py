@@ -25,13 +25,12 @@ def get_transcript_as_document(url):
             os.environ["HTTPS_PROXY"] = proxy_url
             os.environ["HTTP_PROXY"] = proxy_url
 
-        # youtube_transcript_api supports WebshareProxyConfig for Webshare proxy pools
-        # If only username/password are provided, keep using WebshareProxyConfig.
         proxy_username = os.getenv("proxy_username")
         proxy_password = os.getenv("proxy_password")
 
         if proxy_username and proxy_password:
-            transcript = YouTubeTranscriptApi.get_transcript(
+            # CHANGED: .get_transcript to .fetch
+            transcript = YouTubeTranscriptApi.fetch(
                 video_id,
                 proxies=WebshareProxyConfig(
                     proxy_username=proxy_username,
@@ -39,8 +38,8 @@ def get_transcript_as_document(url):
                 ).get_dict()
             )
         else:
-            # Use get_transcript instead of fetch - it's the correct static method
-            transcript = YouTubeTranscriptApi.get_transcript(video_id)
+            # CHANGED: .get_transcript to .fetch
+            transcript = YouTubeTranscriptApi.fetch(video_id)
 
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
