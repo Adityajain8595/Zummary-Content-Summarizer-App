@@ -1,5 +1,5 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.chains.summarize import load_summarize_chain
+from langchain.chains import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from gtts import gTTS
 import base64
