@@ -1,5 +1,5 @@
+import streamlit as st
 from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.proxies import WebshareProxyConfig
 from urllib.parse import urlparse, parse_qs
 from langchain.schema import Document
 import os
@@ -16,22 +16,23 @@ def extract_youtube_video_id(url):
 
 def get_transcript_as_document(url):
     video_id = extract_youtube_video_id(url)
-    if not video_id:
-        raise ValueError("Invalid YouTube URL")
-
-    try:
-        proxy_url = os.getenv("HTTPS_PROXY")
-        if proxy_url:
-            os.environ["HTTPS_PROXY"] = proxy_url
-            
-        transcript = YouTubeTranscriptApi.fetch(video_id) 
-
-        full_text = "\n".join([entry["text"] for entry in transcript])
-        return [Document(page_content=full_text)]
+    try:    
+        # Create an instance and use the fetch method to get the transcript
+        transcript_api = YouTubeTranscriptApi()
+        transcript_data = transcript_api.list(video_id)  # First list available transcripts
+        transcript = transcript_data.fetch()  # Then fetch the transcript
+        
+        # Format the transcript
+        full_text = ""
+        for entry in transcript:
+            if isinstance(entry, dict) and 'text' in entry:
+                full_text += entry['text'] + "\n"
+            elif hasattr(entry, 'text'):
+                full_text += entry.text + "\n"
+            else:
+                full_text += str(entry) + "\n"
+        
+        return [Document(page_content=full_text.strip())]
+    
     except Exception as e:
-        msg = str(e)
-        if "407" in msg or "ProxyError" in msg or "Tunnel connection failed" in msg:
-            raise RuntimeError(
-                "Transcript fetch failed due to a proxy authentication error (HTTP 407). "
-            )
-        raise RuntimeError(f"Transcript fetch failed! Exception: {e}")
+        print(f"Error fetching transcript: {str(e)}")

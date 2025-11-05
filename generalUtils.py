@@ -1,6 +1,8 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.chains import load_summarize_chain
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
+from langchain.chains.combine_documents.map_reduce import MapReduceDocumentsChain
+from langchain.chains.combine_documents.stuff import StuffDocumentsChain
+from langchain.chains.llm import LLMChain
 from gtts import gTTS
 import base64
 import re
@@ -22,13 +24,17 @@ def summarize_chain(docs, llm):
         # Prompt setup
         template = ('''Please provide a concise and detailed summary of the following content.
                     Understand the type and message of the text provided.
-                    Add suitable title followed by introduction.  
+                    Add suitable bold big title followed by an introduction from newline.  
                     Keep section-wise brief pointers (mentioning topics or highlights).
                     End with a fitting conclusion.
                     Text: {text}''')
 
         prompt = PromptTemplate(input_variables=['text'], template=template)
-        chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
+        llm_chain = LLMChain(llm=llm, prompt=prompt)
+        chain = StuffDocumentsChain(
+            llm_chain=llm_chain,
+            document_variable_name="text"
+        )
         output = chain.run(docs)
         return str(output)
     else:
@@ -39,16 +45,25 @@ def summarize_chain(docs, llm):
                     "{text}"
                 )
 
-        initial_prompt = PromptTemplate(input_variables=['text'], template = initial_template)
+        map_prompt = PromptTemplate(input_variables=['text'], template=initial_template)
+        map_chain = LLMChain(llm=llm, prompt=map_prompt)
 
         final_template = '''Provide the final summary of the entire text with these important points.
                         Add a suitable title. Start the precise summary with an introduction, state key notes in pointers and 
                         end with conclusion.
                         The provided text: {text}
                     '''
-        final_prompt = PromptTemplate(input_variables=['text'], template=final_template) 
+        combine_prompt = PromptTemplate(input_variables=['text'], template=final_template)
+        combine_chain = LLMChain(llm=llm, prompt=combine_prompt)
         
-        chain = load_summarize_chain(llm, chain_type="map_reduce", map_prompt=initial_prompt, combine_prompt=final_prompt)
+        chain = MapReduceDocumentsChain(
+            llm_chain=map_chain,
+            reduce_documents_chain=StuffDocumentsChain(
+                llm_chain=combine_chain,
+                document_variable_name="text"
+            ),
+            document_variable_name="text"
+        )
         output = chain.run(chunked_docs)
         return str(output)
     
