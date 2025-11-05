@@ -23,7 +23,7 @@ def get_transcript_as_document(url):
     try:
         proxy_url = st.secrets["PROXY_URL"]
         os.environ["HTTP_PROXY"] = proxy_url
-        transcript = YouTubeTranscriptApi.fetch(video_id)
+        transcript = YouTubeTranscriptApi.fetch(video_id, proxies={"http": proxy_url, "https": proxy_url})
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
     except Exception as e:
