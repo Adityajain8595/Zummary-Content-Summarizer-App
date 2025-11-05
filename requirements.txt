@@ -1,9 +1,8 @@
 python-dotenv
-langchain>=0.1.0
-langchain_community>=0.0.10
-langchain-core>=0.1.0
-langchain_groq
-langchain_text_splitters
+langchain==0.0.297
+langchain-community>=0.0.10
+langchain-groq
+langchain-text-splitters
 streamlit
 pypdf
 validators==0.28.1
