@@ -21,7 +21,7 @@ def get_transcript_as_document(url):
         raise ValueError("Invalid YouTube URL")
 
     try:
-        ytt_api = YouTubeTranscriptApi(video_id, proxies=st.secrets["PROXY_URL"])
+        ytt_api = YouTubeTranscriptApi.fetch(video_id, proxies=st.secrets["PROXY_URL"])
         transcript = ytt_api.fetch(video_id)
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
