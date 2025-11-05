@@ -1,5 +1,5 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.chains import load_summarize_chain
+from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from gtts import gTTS
 import base64
@@ -29,8 +29,7 @@ def summarize_chain(docs, llm):
 
         prompt = PromptTemplate(input_variables=['text'], template=template)
         chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
-        output = chain.run(docs)
-        return str(output)
+        return chain.run(docs)
     else:
         chunked_docs = chunk_documents(docs)
 
@@ -49,8 +48,7 @@ def summarize_chain(docs, llm):
         final_prompt = PromptTemplate(input_variables=['text'], template=final_template) 
         
         chain = load_summarize_chain(llm, chain_type="map_reduce", map_prompt=initial_prompt, combine_prompt=final_prompt)
-        output = chain.run(chunked_docs)
-        return str(output)
+        return chain.run(chunked_docs)
     
 def generate_audio(summary_text, lang="en"):
 
@@ -68,8 +66,3 @@ def generate_audio(summary_text, lang="en"):
 
     b64 = base64.b64encode(audio_bytes).decode()
     return audio_bytes, b64
-    
-
-
-
-    

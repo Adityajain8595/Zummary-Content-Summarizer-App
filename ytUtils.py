@@ -1,4 +1,5 @@
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import WebshareProxyConfig
 from urllib.parse import urlparse, parse_qs
 from langchain.schema import Document
 import os
@@ -15,23 +16,18 @@ def extract_youtube_video_id(url):
 
 def get_transcript_as_document(url):
     video_id = extract_youtube_video_id(url)
-    try:    
-        # Create an instance and use the fetch method to get the transcript
-        transcript_api = YouTubeTranscriptApi()
-        transcript_data = transcript_api.list(video_id)  # First list available transcripts
-        transcript = transcript_data.fetch()  # Then fetch the transcript
-        
-        # Format the transcript
-        full_text = ""
-        for entry in transcript:
-            if isinstance(entry, dict) and 'text' in entry:
-                full_text += entry['text'] + "\n"
-            elif hasattr(entry, 'text'):
-                full_text += entry.text + "\n"
-            else:
-                full_text += str(entry) + "\n"
-        
-        return [Document(page_content=full_text.strip())]
-    
+    if not video_id:
+        raise ValueError("Invalid YouTube URL")
+
+    try:
+        ytt_api = YouTubeTranscriptApi(
+            proxy_config=WebshareProxyConfig(
+                proxy_username=os.getenv("proxy_username"),
+                proxy_password=os.getenv("proxy_password"),
+            )
+        )
+        transcript = ytt_api.get_transcript(video_id)
+        full_text = "\n".join([entry["text"] for entry in transcript])
+        return [Document(page_content=full_text)]
     except Exception as e:
-        print(f"Error fetching transcript: {str(e)}")
+        raise RuntimeError(f"Transcript fetch failed! Exception: {e}")
