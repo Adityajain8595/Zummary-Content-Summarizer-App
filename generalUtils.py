@@ -1,5 +1,5 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain.chains.summarize import load_summarize_chain
+from langchain.chains import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from gtts import gTTS
 import base64
@@ -22,14 +22,16 @@ def summarize_chain(docs, llm):
         # Prompt setup
         template = ('''Please provide a concise and detailed summary of the following content.
                     Understand the type and message of the text provided.
-                    Add suitable title followed by introduction.  
+                    Add suitable title.
+                    Give brief introduction or overview.
                     Keep section-wise brief pointers (mentioning topics or highlights).
                     End with a fitting conclusion.
                     Text: {text}''')
 
         prompt = PromptTemplate(input_variables=['text'], template=template)
         chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
-        return chain.run(docs)
+        output = chain.run(docs)
+        return str(output)
     else:
         chunked_docs = chunk_documents(docs)
 
@@ -48,7 +50,8 @@ def summarize_chain(docs, llm):
         final_prompt = PromptTemplate(input_variables=['text'], template=final_template) 
         
         chain = load_summarize_chain(llm, chain_type="map_reduce", map_prompt=initial_prompt, combine_prompt=final_prompt)
-        return chain.run(chunked_docs)
+        output = chain.run(chunked_docs)
+        return str(output)
     
 def generate_audio(summary_text, lang="en"):
 

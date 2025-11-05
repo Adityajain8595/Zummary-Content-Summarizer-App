@@ -20,14 +20,18 @@ def get_transcript_as_document(url):
         raise ValueError("Invalid YouTube URL")
 
     try:
-        ytt_api = YouTubeTranscriptApi(
-            proxy_config=WebshareProxyConfig(
-                proxy_username=os.getenv("proxy_username"),
-                proxy_password=os.getenv("proxy_password"),
-            )
-        )
-        transcript = ytt_api.get_transcript(video_id)
+        proxy_url = os.getenv("HTTPS_PROXY")
+        if proxy_url:
+            os.environ["HTTPS_PROXY"] = proxy_url
+            
+        transcript = YouTubeTranscriptApi.fetch(video_id) 
+
         full_text = "\n".join([entry["text"] for entry in transcript])
         return [Document(page_content=full_text)]
     except Exception as e:
+        msg = str(e)
+        if "407" in msg or "ProxyError" in msg or "Tunnel connection failed" in msg:
+            raise RuntimeError(
+                "Transcript fetch failed due to a proxy authentication error (HTTP 407). "
+            )
         raise RuntimeError(f"Transcript fetch failed! Exception: {e}")
