@@ -23,7 +23,7 @@ def get_transcript_as_document(url):
     try:
         ytt_api = YouTubeTranscriptApi(
             proxy_config=WebshareProxyConfig(
-                proxy_url=st.secrets["PROXY_URL"],
+                proxies=st.secrets["PROXY_URL"],
             )
         )
         transcript = ytt_api.fetch(video_id)
