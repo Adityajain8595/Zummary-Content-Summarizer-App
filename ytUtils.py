@@ -3,6 +3,7 @@ from youtube_transcript_api.proxies import WebshareProxyConfig
 from urllib.parse import urlparse, parse_qs
 from langchain.schema import Document
 import os
+import streamlit as st
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -22,8 +23,7 @@ def get_transcript_as_document(url):
     try:
         ytt_api = YouTubeTranscriptApi(
             proxy_config=WebshareProxyConfig(
-                proxy_username=os.getenv("proxy_username"),
-                proxy_password=os.getenv("proxy_password"),
+                proxy_url=st.secrets["PROXY_URL"],
             )
         )
         transcript = ytt_api.fetch(video_id)
