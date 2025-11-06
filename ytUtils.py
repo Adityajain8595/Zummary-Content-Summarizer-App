@@ -2,7 +2,6 @@ from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import WebshareProxyConfig
 from urllib.parse import urlparse, parse_qs
 from langchain.schema import Document
-import os
 import streamlit as st
 from dotenv import load_dotenv
 load_dotenv()
@@ -21,10 +20,14 @@ def get_transcript_as_document(url):
         raise ValueError("Invalid YouTube URL")
 
     try:
-        proxy_url = st.secrets["PROXY_URL"]
-        os.environ["HTTP_PROXY"] = proxy_url
-        transcript = YouTubeTranscriptApi.fetch(video_id, proxies={"http": proxy_url, "https": proxy_url})
-        full_text = "\n".join([entry["text"] for entry in transcript])
+        ytt_api = YouTubeTranscriptApi(
+            proxy_config=WebshareProxyConfig(
+                proxy_username=st.secrets["proxy_username"],
+                proxy_password=st.secrets["proxy_password"],
+            )
+        )
+        transcript = ytt_api.fetch(video_id)
+        full_text = "\n".join([entry.text for entry in transcript])
         return [Document(page_content=full_text)]
     except Exception as e:
         raise RuntimeError(f"Transcript fetch failed! Exception: {e}")
