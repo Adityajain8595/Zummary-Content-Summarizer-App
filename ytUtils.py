@@ -1,5 +1,6 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.proxies import WebshareProxyConfig
+import random
 from urllib.parse import urlparse, parse_qs
 from langchain.schema import Document
 import streamlit as st
